@@ -67,7 +67,7 @@ for server in env.roledefs['dns']:
                 run('touch /var/log/bind/named.log /var/log/bind/query.log')
                 run('chown -R bind:bind /var/log/bind/')
                 run('/usr/local/etc/rc.d/named start')
-            print("This was FreeBSD sevrer")
+            print("This was FreeBSD server")
         elif osver == 'Linux' and lintype == 'CentOS':
             getlbindpack = run('which named')
             bindlpidfile = run('cat /var/run/named/named.pid')
