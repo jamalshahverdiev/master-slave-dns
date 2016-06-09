@@ -18,14 +18,6 @@ tempmz = templateEnv.get_template( TEMPMZFILE )
 tempsz = templateEnv.get_template( TEMPSZFILE )
 tempdom = templateEnv.get_template( TEMPDOMFILE )
 
-TEMPLMZFILE = os.getcwd()+'/jinja2temps/lmnewzone.conf'
-TEMPLSZFILE = os.getcwd()+'/jinja2temps/lsnewzone.conf'
-TEMPLDOMFILE = os.getcwd()+'/jinja2temps/lmdom.conf'
-
-templmz = templateEnv.get_template( TEMPLMZFILE )
-templsz = templateEnv.get_template( TEMPLSZFILE )
-templdom = templateEnv.get_template( TEMPLDOMFILE )
-
 env.roledefs = {
     'dns': [str(raw_input('Please enter NS1 IP address: ')), str(raw_input('Please enter NS2 IP address: '))]
 }
@@ -36,6 +28,53 @@ env.password = getpass.getpass()
 print('1. Please write domain name and click Enter button.')
 print('2. For exit, write 2 and click Enter button: ')
 ent = raw_input('Write your choose: ')
+
+cbconf = '/etc/named.conf'
+cbindpath = '/etc/namedb'
+fbconf = '/usr/local/etc/namedb/named.conf'
+fbindpath = '/usr/local/etc/namedb'
+def domainchecker(conf):
+    if server == env.roledefs['dns'][0]:
+        fzonename = run('cat '+conf+' | grep '+ent+' |  head -1 | awk \'{ print $2 }\' | sed \'s/"//g\'')
+        fzonefile = run('cat '+conf+' | grep '+ent+' |  tail -1 | awk \'{ print $2 }\' | sed \'s/"//g;s/;//g\' | awk -F/ \'{print $NF}\' | cut -f1,2 -d\'.\'')
+        if ent == fzonename and fzonefile == ent:
+            print(' Entered domain name '+ent+' already exists on the NS1 '+env.roledefs['dns'][0]+' server!!!')
+            print(' If you want add new record for this '+ent+' domain name, please use ./python-add-record.py script.')
+            sys.exit()
+        else:
+            pass
+
+def writemzone(bindpath, conf):
+    tempmzVars = { "ns1" : env.roledefs['dns'][0], "ns2" : env.roledefs['dns'][1], "domain" : ent, "bdpath" : bindpath }
+    outputmzText = tempmz.render( tempmzVars )
+    outputdomText = tempdom.render( tempmzVars )
+    if server == env.roledefs['dns'][0]:
+        with open("zone_"+env.roledefs['dns'][0]+".conf", "wb") as ns1zone:
+            ns1zone.write(outputmzText)
+        with open(ent+".zone", "wb") as masdom:
+            masdom.write(outputdomText)
+        print("This is NS1 "+env.roledefs['dns'][0]+" server")
+        put('zone_'+env.roledefs['dns'][0]+'.conf', ''+bindpath+'')
+        put(ent+'.zone', ''+bindpath+'/master/')
+        run('cat '+bindpath+'/zone_'+env.roledefs['dns'][0]+'.conf >> '+conf+'')
+        run('service named restart')
+
+def writeszone(bindpath, conf):
+    tempszVars = { "ns1" : env.roledefs['dns'][0], "domain" : ent, "bdpath" : bindpath}
+    outputszText = tempsz.render( tempszVars )
+    if server == env.roledefs['dns'][1]:
+        with open("zone_"+env.roledefs['dns'][1]+".conf", "wb") as ns2zone:
+            ns2zone.write(outputszText)
+        print("This is NS2 "+env.roledefs['dns'][1]+" server")
+        put('zone_'+env.roledefs['dns'][1]+'.conf', ''+bindpath+'')
+        #print("File copied to NS2 -> "+env.roledefs['dns'][1]+" server")
+        run('cat '+bindpath+'/zone_'+env.roledefs['dns'][1]+'.conf >> '+conf+'')
+        run('service named restart')
+
+def checkservice():
+    print(' DNS service is not working!!!')
+    print(' To install DNS bind please use, ./python-ms-sl-dns.py script. ')
+    sys.exit()
 
 for server in env.roledefs['dns']:
     env.host_string = server
@@ -48,77 +87,33 @@ for server in env.roledefs['dns']:
         ftype = run('uname -v | awk \'{ print $2 }\' | cut -f1 -d \'.\'')
         if osver == 'FreeBSD' and ftype >= 10:
             getfbindpack = run('which named')
-            if getfbindpack == '/usr/local/sbin/named':
-                def writemzone():
-                    tempmzVars = { "ns1" : env.roledefs['dns'][0], "ns2" : env.roledefs['dns'][1], "domain" : ent, }
-                    outputmzText = tempmz.render( tempmzVars )
-                    outputdomText = tempdom.render( tempmzVars )
-                    if server == env.roledefs['dns'][0]:
-                        with open("zone_"+env.roledefs['dns'][0]+".conf", "wb") as ns1zone:
-                            ns1zone.write(outputmzText)
-                        with open(ent+".zone", "wb") as masdom:
-                            masdom.write(outputdomText)
-                        print("This is NS1 "+env.roledefs['dns'][0]+" server")
-                        put('zone_'+env.roledefs['dns'][0]+'.conf', '/usr/local/etc/namedb/')
-                        put(ent+'.zone', '/usr/local/etc/namedb/master/')
-                        run('cat /usr/local/etc/namedb/zone_'+env.roledefs['dns'][0]+'.conf >> /usr/local/etc/namedb/named.conf')
-                        run('service named restart')
-
-                def writeszone():
-                    tempszVars = { "ns1" : env.roledefs['dns'][0], "domain" : ent, }
-                    outputszText = tempsz.render( tempszVars )
-                    if server == env.roledefs['dns'][1]:
-                        with open("zone_"+env.roledefs['dns'][1]+".conf", "wb") as ns2zone:
-                            ns2zone.write(outputszText)
-                        print("This is NS2 "+env.roledefs['dns'][1]+" server")
-                        put('zone_'+env.roledefs['dns'][1]+'.conf', '/usr/local/etc/namedb/')
-                        run('cat /usr/local/etc/namedb/zone_'+env.roledefs['dns'][1]+'.conf >> /usr/local/etc/namedb/named.conf')
-                        run('service named restart')
+            bindfpidfile = run('cat /var/run/named/pid')
+            bindfpid = run('ps waux | grep named | grep -v grep | awk \'{ print $2 }\'')
+            if getfbindpack == '/usr/local/sbin/named' and bindfpid == bindfpidfile:
+                domainchecker(fbconf)
 
                 if ent != 2 and len(ent) > 4:
-                    writemzone()
-                    writeszone()
+                    writemzone(fbindpath, fbconf)
+                    writeszone(fbindpath, fbconf)
                 else:
                     print("\nMinimal symbol count must be 4.")
                     sys.exit()
+            else:
+                checkservice()
+
         elif osver == 'Linux' and lintype == 'CentOS':
             getlbindpack = run('which named')
             bindlpidfile = run('cat /var/run/named/named.pid')
             bindlpid = run('ps waux|grep named | grep -v grep | awk \'{ print $2 }\'')
             if getlbindpack == '/usr/sbin/named' and bindlpidfile == bindlpid:
-                def writelmzone():
-                    templmzVars = { "ns1" : env.roledefs['dns'][0], "ns2" : env.roledefs['dns'][1], "domain" : ent, }
-                    outputlmzText = templmz.render( templmzVars )
-                    outputldomText = templdom.render( templmzVars )
-                    if server == env.roledefs['dns'][0]:
-                        with open("zone_"+env.roledefs['dns'][0]+".conf", "wb") as ns1zone:
-                            ns1zone.write(outputlmzText)
-                        with open(ent+".zone", "wb") as masdom:
-                            masdom.write(outputldomText)
-                        print("This is NS1 "+env.roledefs['dns'][0]+" server")
-                        put('zone_'+env.roledefs['dns'][0]+'.conf', '/etc/namedb/')
-                        put(ent+'.zone', '/etc/namedb/master/')
-                        run('cat /etc/namedb/zone_'+env.roledefs['dns'][0]+'.conf >> /etc/named.conf')
-                        run('systemctl restart named.service')
-
-                def writelszone():
-                    templszVars = { "ns1" : env.roledefs['dns'][0], "domain" : ent, }
-                    outputlszText = templsz.render( templszVars )
-                    if server == env.roledefs['dns'][1]:
-                        with open("zone_"+env.roledefs['dns'][1]+".conf", "wb") as ns2zone:
-                            ns2zone.write(outputlszText)
-                        print("This is NS2 "+env.roledefs['dns'][1]+" server")
-                        put('zone_'+env.roledefs['dns'][1]+'.conf', '/etc/namedb/')
-#                       print("File copied to NS2 -> "+env.roledefs['dns'][1]+" server")
-                        run('cat /etc/namedb/zone_'+env.roledefs['dns'][1]+'.conf >> /etc/named.conf')
-                        run('systemctl restart named.service')
- 
+                domainchecker(cbconf)
                 if ent != 2 and len(ent) > 4:
-                    writelmzone()
-                    writelszone()
+                    writemzone(cbindpath, cbconf)
+                    writeszone(cbindpath, cbconf)
                 else:
                     print("\nMinimal symbol count must be 4.")
                     sys.exit()
+            else:
+                checkservice()
         else:
             print("The script is not determine server type. For this reason you cannot use this script.")
-
