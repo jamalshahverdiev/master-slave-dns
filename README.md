@@ -1,10 +1,10 @@
 <html>
 <meta charset="utf-8">
 The content of this branch are the following:
-<center><b>dnscleaner.sh
-python-installer.sh
-jinja2temps
-python-ms-sl-dns.py
+<center><b>dnscleaner.sh<br>
+python-installer.sh<br>
+jinja2temps<br>
+python-ms-sl-dns.py<br>
 python-add-zone.py</b></center>
 
 <b>dnscleaner.sh</b>  - is SHELL script which cleans everything about DNS BIND.
