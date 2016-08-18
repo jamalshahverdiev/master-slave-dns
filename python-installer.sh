@@ -11,7 +11,7 @@ then
          exit 0
     else
         /usr/sbin/pkg install -y bash vim bash-completion
-        /usr/sbin/pkg install -y python27 python34-3.4.4_2
+        /usr/sbin/pkg install -y python27 python34
         /usr/local/bin/python3.4 -m ensurepip
         /usr/local/bin/python3.4 -m pip install --upgrade pip
         /usr/local/bin/python3.4 -m pip install fabric
