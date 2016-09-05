@@ -1,0 +1,50 @@
+$TTL 172800     ; 2 days
+unixmen.com.   IN  SOA     ns1.unixmen.com. root.unixmen.com. (
+                                2016050911      ; Serial
+                                86400           ; Refresh
+                                7200            ; Retry
+                                604800          ; Expire
+                                172800          ; Minimum TTL
+                                )
+; DNS Servers
+                IN  NS  ns1.unixmen.com.
+                IN  NS  ns2.unixmen.com.
+; SPF Query Record
+unixmen.com.   IN  TXT "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+unixmen.com.   IN  SPF "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+; MX Records
+                IN  MX 10   mail.unixmen.com.
+                IN  A       100.100.100.10
+; SRV
+_jabber._tcp.jabber.unixmen.com.       IN      SRV     0   0   5269    jabber.unixmen.com.
+_sip._tls.unixmen.com.                 IN      SRV     0   0   442     access.unixmen.com.
+_sipfederationtls._tcp.unixmen.com.    IN      SRV     0   0   5061    access.unixmen.com. 
+_xmpp-client._tcp.jabber.unixmen.com.  IN      SRV     0   0   5222    jabber.unixmen.com.
+_xmpp-server._tcp.jabber.unixmen.com.  IN      SRV     0   0   5269    jabber.unixmen.com.
+
+unixmen.com.   IN  NAPTR 10 0  "s"     "SIPS+D2T"  "" _sips._tcp.unixmen.com.
+unixmen.com.   IN  NAPTR 20 0  "s"     "SIP+D2T"   "" _sip._tcp.unixmen.com.
+unixmen.com.   IN  NAPTR 30 0  "s"     "SIP+D2U"   "" _sip._udp.unixmen.com.
+
+_sips._tcp.unixmen.com.    IN  SRV 10 0 5061   sip.unixmen.com.
+_sip._udp.unixmen.com.     IN  SRV 10 0 5060   sip.unixmen.com.
+_sip._tcp.unixmen.com.     IN  SRV 10 0 5060   sip.unixmen.com.
+_sip._sctp.unixmen.com.    IN  SRV 10 0 5060   sip.unixmen.com.
+
+; Machine Names
+mail            IN  A   172.16.100.149
+ns1             IN  A   172.16.100.100
+ns2             IN  A   172.16.100.200
+; Aliases
+www             IN  CNAME   @
+
+unixmen.com.	IN  TXT "v=spf1 +a +mx +ptr ip4:100.199.29.11 -all"
+_http._tcp.unixmen.com.	IN	SRV	0   0   80    jabber.unixmen.com.
+mmmmm		IN  A   100.100.200.100
+@		IN  NS  ns3
+ns3		IN  A   100.22.11.2
+@		IN  MX  10   newmail.linuxmen.com.
+newmail		IN  A   100.199.188.177
+unixmen.com.	IN  TXT "v=spf1 +a +mx +ptr ip4:100.199.188.177 -all"
+_http._tcp.unixmen.com.	IN	SRV	0   0   80    jabber.unixmen.com.
+jabber		IN  A   199.188.177.166

@@ -1,0 +1,45 @@
+$TTL 172800     ; 2 days
+salam.az.   IN  SOA     ns1.salam.az. root.salam.az. (
+                                2016050906      ; Serial
+                                86400           ; Refresh
+                                7200            ; Retry
+                                604800          ; Expire
+                                172800          ; Minimum TTL
+                                )
+; DNS Servers
+                IN  NS  ns1.salam.az.
+                IN  NS  ns2.salam.az.
+; SPF Query Record
+salam.az.   IN  TXT "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+salam.az.   IN  SPF "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+; MX Records
+                IN  MX 10   mail.salam.az.
+                IN  A       100.100.100.10
+; SRV
+_jabber._tcp.jabber.salam.az.       IN      SRV     0   0   5269    jabber.salam.az.
+_sip._tls.salam.az.                 IN      SRV     0   0   442     access.salam.az.
+_sipfederationtls._tcp.salam.az.    IN      SRV     0   0   5061    access.salam.az. 
+_xmpp-client._tcp.jabber.salam.az.  IN      SRV     0   0   5222    jabber.salam.az.
+_xmpp-server._tcp.jabber.salam.az.  IN      SRV     0   0   5269    jabber.salam.az.
+
+salam.az.   IN  NAPTR 10 0  "s"     "SIPS+D2T"  "" _sips._tcp.salam.az.
+salam.az.   IN  NAPTR 20 0  "s"     "SIP+D2T"   "" _sip._tcp.salam.az.
+salam.az.   IN  NAPTR 30 0  "s"     "SIP+D2U"   "" _sip._udp.salam.az.
+
+_sips._tcp.salam.az.    IN  SRV 10 0 5061   sip.salam.az.
+_sip._udp.salam.az.     IN  SRV 10 0 5060   sip.salam.az.
+_sip._tcp.salam.az.     IN  SRV 10 0 5060   sip.salam.az.
+_sip._sctp.salam.az.    IN  SRV 10 0 5060   sip.salam.az.
+
+; Machine Names
+mail            IN  A   100.100.100.10
+ns1             IN  A   172.16.100.100
+ns2             IN  A   172.16.100.200
+; Aliases
+www             IN  CNAME   @
+
+_sip._tcp.salam.az.	IN	SRV	0   0   5060    jabber.salam.az.
+jabber		IN  A   100.200.110.112
+_sip._tcp.salam.az.	IN	SRV	0   0   5060    jabber.salam.az.
+jabber		IN  A   133.122.121.213
+ezvoc		IN  A   199.100.188.123
