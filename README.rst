@@ -6,6 +6,7 @@
     jinja2temps
     python-ms-sl-dns.py
     python-add-zone.py
+    python-add-record.py
 
 
 * Short explanation for scripts and folders::
@@ -23,6 +24,14 @@
      
     python-add-zone.py         For adding new Zone execute this script and write domain name.
                                This will create named.conf configurations for master and Slave servers and will create domain file.
+
+    python-add-record.py       With this script you we can add the following DNS record types for existing zone:
+                                A
+                                NS
+                                MX
+                                TXT
+                                SRV
+
 
 
 * By default Fabric is searching for **/bin/bash** binary file(Install bash with **python-installer.sh** script). That is why I have copied ``/usr/local/bin/bash`` file to ``/bin/bash`` in FreeBSD Servers. Also copy the content of **freebsd-bash** folder to the **/root** homefolder for FreeBSD servers.
