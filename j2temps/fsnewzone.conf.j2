@@ -1,0 +1,7 @@
+zone "{{ domain }}" {
+        type slave;
+        file "{{ bdpath }}/slave/{{ domain }}.zone";
+        masters {
+                {{ ns1 }};
+        };
+};

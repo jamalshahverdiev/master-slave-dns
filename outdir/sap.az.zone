@@ -1,0 +1,40 @@
+$TTL 172800     ; 2 days
+sap.az.   IN  SOA     ns1.sap.az. root.sap.az. (
+                                2016050901      ; Serial
+                                86400           ; Refresh
+                                7200            ; Retry
+                                604800          ; Expire
+                                172800          ; Minimum TTL
+                                )
+; DNS Servers
+                IN  NS  ns1.sap.az.
+                IN  NS  ns2.sap.az.
+; SPF Query Record
+sap.az.   IN  TXT "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+sap.az.   IN  SPF "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+; MX Records
+                IN  MX 10   mail.sap.az.
+                IN  A       100.100.100.10
+; SRV
+_jabber._tcp.jabber.sap.az.       IN      SRV     0   0   5269    jabber.sap.az.
+_sip._tls.sap.az.                 IN      SRV     0   0   442     access.sap.az.
+_sipfederationtls._tcp.sap.az.    IN      SRV     0   0   5061    access.sap.az. 
+_xmpp-client._tcp.jabber.sap.az.  IN      SRV     0   0   5222    jabber.sap.az.
+_xmpp-server._tcp.jabber.sap.az.  IN      SRV     0   0   5269    jabber.sap.az.
+
+sap.az.   IN  NAPTR 10 0  "s"     "SIPS+D2T"  "" _sips._tcp.sap.az.
+sap.az.   IN  NAPTR 20 0  "s"     "SIP+D2T"   "" _sip._tcp.sap.az.
+sap.az.   IN  NAPTR 30 0  "s"     "SIP+D2U"   "" _sip._udp.sap.az.
+
+_sips._tcp.sap.az.    IN  SRV 10 0 5061   sip.sap.az.
+_sip._udp.sap.az.     IN  SRV 10 0 5060   sip.sap.az.
+_sip._tcp.sap.az.     IN  SRV 10 0 5060   sip.sap.az.
+_sip._sctp.sap.az.    IN  SRV 10 0 5060   sip.sap.az.
+
+; Machine Names
+mail            IN  A   100.100.100.10
+ns1             IN  A   10.50.94.103
+ns2             IN  A   10.50.94.203
+; Aliases
+www             IN  CNAME   @
+

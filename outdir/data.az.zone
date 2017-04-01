@@ -1,0 +1,40 @@
+$TTL 172800     ; 2 days
+data.az.   IN  SOA     ns1.data.az. root.data.az. (
+                                2016050901      ; Serial
+                                86400           ; Refresh
+                                7200            ; Retry
+                                604800          ; Expire
+                                172800          ; Minimum TTL
+                                )
+; DNS Servers
+                IN  NS  ns1.data.az.
+                IN  NS  ns2.data.az.
+; SPF Query Record
+data.az.   IN  TXT "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+data.az.   IN  SPF "v=spf1 +a +mx +ptr ip4:100.100.100.100 -all"
+; MX Records
+                IN  MX 10   mail.data.az.
+                IN  A       100.100.100.10
+; SRV
+_jabber._tcp.jabber.data.az.       IN      SRV     0   0   5269    jabber.data.az.
+_sip._tls.data.az.                 IN      SRV     0   0   442     access.data.az.
+_sipfederationtls._tcp.data.az.    IN      SRV     0   0   5061    access.data.az. 
+_xmpp-client._tcp.jabber.data.az.  IN      SRV     0   0   5222    jabber.data.az.
+_xmpp-server._tcp.jabber.data.az.  IN      SRV     0   0   5269    jabber.data.az.
+
+data.az.   IN  NAPTR 10 0  "s"     "SIPS+D2T"  "" _sips._tcp.data.az.
+data.az.   IN  NAPTR 20 0  "s"     "SIP+D2T"   "" _sip._tcp.data.az.
+data.az.   IN  NAPTR 30 0  "s"     "SIP+D2U"   "" _sip._udp.data.az.
+
+_sips._tcp.data.az.    IN  SRV 10 0 5061   sip.data.az.
+_sip._udp.data.az.     IN  SRV 10 0 5060   sip.data.az.
+_sip._tcp.data.az.     IN  SRV 10 0 5060   sip.data.az.
+_sip._sctp.data.az.    IN  SRV 10 0 5060   sip.data.az.
+
+; Machine Names
+mail            IN  A   100.100.100.10
+ns1             IN  A   10.50.94.103
+ns2             IN  A   10.50.94.203
+; Aliases
+www             IN  CNAME   @
+

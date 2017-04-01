@@ -1,0 +1,9 @@
+zone "{{ domain }}" {
+        type master;
+        also-notify { {{ ns1 }}; };
+        allow-transfer { trusted-dns; };
+        allow-update { key ns1-ns2. ;};
+        file "{{ bdpath }}/master/{{ domain }}.zone";
+};
+
+
