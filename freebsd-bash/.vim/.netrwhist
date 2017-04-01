@@ -1,7 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =5
-let g:netrw_dirhist_1='/www/data/ebook/book/templates'
-let g:netrw_dirhist_2='/www/data/djproj/src/newsletter'
-let g:netrw_dirhist_3='/www/data/djproj/src/templates'
-let g:netrw_dirhist_4='/usr/local/domen'
-let g:netrw_dirhist_5='/root/dns-configurator-python/jinja2examples'
