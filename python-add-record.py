@@ -118,7 +118,7 @@ def srvInputs():
     portnum = raw_input(''+enter+' port number for this '+srv+'(For example: 80 for _http service): ')
 
 env.user = raw_input(''+enter+' '+username+' for UNIX/Linux '+nserver+': ')
-env.password = getpass.getpass()
+env.password = getpass.getpass(''+enter+' password for UNIX/Linux '+nserver+': ')
 
 print('1. Write domain name which you want to update and press '+enter+' button: ')
 print('2. To exit, press '+enter+' button. ')
